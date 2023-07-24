@@ -8,6 +8,8 @@ Run multiple Postman collections with a single command.
 
 ```yaml
 commands:
+  - name: postman-login
+    command: ppostman login --with-api-key xxxx
   - name: collection-1
     command: ppostman collection run xxxx -e xxxx
   - name: collection-2
