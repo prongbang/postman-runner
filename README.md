@@ -14,6 +14,14 @@ commands:
     command: ppostman collection run xxxx -e xxxx
 ```
 
+## Install
+
+### With Cargo Install
+
+```shell
+cargo install postman-runner --git https://github.com/prongbang/postman-runner.git
+```
+
 ## Run
 
 ```shell
