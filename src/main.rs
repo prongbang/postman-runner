@@ -5,6 +5,8 @@ mod result;
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use serde_yaml::{self};
+use futures_util::pin_mut;
+use futures_util::stream::StreamExt;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -24,7 +26,8 @@ struct Commands {
     command: String,
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     println!("                  __
    ___  ___  ___ / /___ _  ___ ____  __________ _____  ___  ___ ____
   / _ \\/ _ \\(_-</ __/  ' \\/ _ `/ _ \\/___/ __/ // / _ \\/ _ \\/ -_) __/
@@ -34,20 +37,18 @@ fn main() {
     let args = Args::parse();
 
     // Parse yml to struct
-    let f = std::fs::File::open(args.config).expect("Could not open file.");
-    let config: Config = serde_yaml::from_reader(f).expect("Could not read values.");
+    let file = std::fs::File::open(args.config).expect("Could not open file.");
+    let config: Config = serde_yaml::from_reader(file).expect("Could not read values.");
 
     // Run command
     for cmd in config.commands {
         let command = cmd.command.as_str();
         println!("{}:\n↳ {}", cmd.name, command);
-        match command::cmd::run(command) {
-            Ok(output) => {
-                println!("{}", output)
-            }
-            Err(error) => {
-                println!("\tCommand execution failed:\n{}", error);
-            }
+
+        let stream = command::cmd::run_stream(command);
+        pin_mut!(stream); // needed for iteration
+        while let Some(value) = stream.next().await {
+            println!("{}", value.output);
         }
     }
 }

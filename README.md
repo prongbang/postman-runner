@@ -22,6 +22,12 @@ commands:
 cargo install postman-runner --git https://github.com/prongbang/postman-runner.git
 ```
 
+### With Cargo Build
+
+```shell
+cargo build --release
+```
+
 ## Run
 
 ```shell
