@@ -49,6 +49,7 @@ async fn main() {
         pin_mut!(stream); // needed for iteration
         while let Some(value) = stream.next().await {
             println!("{}", value.output);
+            result::parser::parse(cmd.name.as_str(), format!("{}", value.output).as_str());
         }
     }
 }

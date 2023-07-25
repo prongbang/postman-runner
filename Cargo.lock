@@ -459,6 +459,7 @@ dependencies = [
  "regex",
  "serde",
  "serde_yaml",
+ "strip-ansi-escapes",
  "tokio",
 ]
 
