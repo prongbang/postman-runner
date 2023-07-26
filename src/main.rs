@@ -47,9 +47,14 @@ async fn main() {
 
         let stream = command::cmd::run_stream(command);
         pin_mut!(stream); // needed for iteration
+        let mut output = String::from("");
         while let Some(value) = stream.next().await {
+            output.push_str(value.output.as_str());
             println!("{}", value.output);
-            result::parser::parse(cmd.name.as_str(), format!("{}", value.output).as_str());
+            if value.success {
+                let result = result::parser::parse(format!("{}", output).as_str());
+                println!("{:?}", result);
+            }
         }
     }
 }
