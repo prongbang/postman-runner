@@ -39,6 +39,13 @@ impl TestResult {
     }
 }
 
+#[derive(Debug, PartialEq)]
+pub struct TestCollection {
+    pub name: String,
+    pub test_result: TestResult,
+}
+
+
 pub fn parse(inline: &str) -> TestResult {
     // Strip escapes from text
     let stripped_inline = strip_ansi_escapes::strip(inline).unwrap_or_default();

@@ -40,6 +40,9 @@ async fn main() {
     let file = std::fs::File::open(args.config).expect("Could not open file.");
     let config: Config = serde_yaml::from_reader(file).expect("Could not read values.");
 
+    // Result
+    let mut test_collections: Vec<result::parser::TestCollection> = Vec::new();
+
     // Run command
     for cmd in config.commands {
         let command = cmd.command.as_str();
@@ -51,10 +54,14 @@ async fn main() {
         while let Some(value) = stream.next().await {
             output.push_str(value.output.as_str());
             println!("{}", value.output);
+
+            // Parse result to struct
             if value.success {
                 let result = result::parser::parse(format!("{}", output).as_str());
-                println!("{:?}", result);
+                test_collections.push(result::parser::TestCollection { name: cmd.name.to_string(), test_result: result });
             }
         }
     }
+
+    println!("Result: {:?}", test_collections)
 }
