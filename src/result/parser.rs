@@ -53,10 +53,18 @@ pub fn parse(inline: &str) -> TestResult {
 
     let mut test_result = TestResult::new();
 
-    // Create a regular expression pattern to match the labels and values
-    let regx = Regex::new(r"(?m)│\s+(\w+(?:-\w+)*)\s+│\s+(\d+)\s+│\s+(\d+)\s+│(?m)").unwrap();
-    let result = regx.captures_iter(stripped_text.as_str());
-    for captures in result {
+    // Get test name
+    let regex_test_name = Regex::new(r"↳\s*([A-Za-z0-9!@#$%^&*()_+-{}/<>?]*)").unwrap();
+    let test_name = regex_test_name.captures_iter(stripped_text.as_str());
+    for captures in test_name {
+        let name = get_value(&captures, 1);
+        println!("{}", name);
+    }
+
+    // Get test result
+    let regex_test_summary = Regex::new(r"(?m)│\s+(\w+(?:-\w+)*)\s+│\s+(\d+)\s+│\s+(\d+)\s+│(?m)").unwrap();
+    let test_summary = regex_test_summary.captures_iter(stripped_text.as_str());
+    for captures in test_summary {
         if captures.len() == 4 {
             let label = get_value(&captures, 1);
             if label == INTERACTIONS {
