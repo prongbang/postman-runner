@@ -55,9 +55,13 @@ async fn main() {
             output.push_str(value.output.as_str());
             println!("{}", value.output);
 
+            // Parse test to struct
+            result::parser::parse_test_name(value.output.as_str());
+            result::parser::parse_test_req(value.output.as_str());
+
             // Parse result to struct
             if value.success {
-                let result = result::parser::parse(format!("{}", output).as_str());
+                let result = result::parser::parse_result(format!("{}", output).as_str());
                 test_collections.push(result::parser::TestCollection { name: cmd.name.to_string(), test_result: result });
             }
         }

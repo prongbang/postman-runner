@@ -45,25 +45,43 @@ pub struct TestCollection {
     pub test_result: TestResult,
 }
 
-
-pub fn parse(inline: &str) -> TestResult {
-    // Strip escapes from text
-    let stripped_inline = strip_ansi_escapes::strip(inline).unwrap_or_default();
-    let stripped_text = String::from_utf8(stripped_inline).unwrap();
-
-    let mut test_result = TestResult::new();
+pub fn parse_test_name(inline: &str) {
+    let stripped = stripped_text(inline);
 
     // Get test name
-    let regex_test_name = Regex::new(r"↳\s*([A-Za-z0-9!@#$%^&*()_+-{}/<>?]*)").unwrap();
-    let test_name = regex_test_name.captures_iter(stripped_text.as_str());
+    let regex_test_name = Regex::new(r"[→↳]\s*([A-Za-z0-9!@#$%^&*()_+-{}/<>? ]*)").unwrap();
+    let test_name = regex_test_name.captures_iter(stripped.as_str());
     for captures in test_name {
         let name = get_value(&captures, 1);
         println!("{}", name);
     }
+}
+
+pub fn parse_test_req(inline: &str) {
+    let stripped = stripped_text(inline);
+
+    // Get test name
+    let regex_test_req = Regex::new(r"(\S+) (\S+) \[\d+ ([\w+ ])+, \S+, \S+\]+").unwrap();
+    let test_req = regex_test_req.captures_iter(stripped.as_str());
+    for captures in test_req {
+        let method = get_value(&captures, 1);
+        let url = get_value(&captures, 2);
+        let response = get_value(&captures, 3);
+        println!("{}", method);
+        println!("{}", url);
+        println!("{}", response);
+        println!("{:?}", &captures);
+    }
+}
+
+pub fn parse_result(inline: &str) -> TestResult {
+    let stripped = stripped_text(inline);
+
+    let mut test_result = TestResult::new();
 
     // Get test result
     let regex_test_summary = Regex::new(r"(?m)│\s+(\w+(?:-\w+)*)\s+│\s+(\d+)\s+│\s+(\d+)\s+│(?m)").unwrap();
-    let test_summary = regex_test_summary.captures_iter(stripped_text.as_str());
+    let test_summary = regex_test_summary.captures_iter(stripped.as_str());
     for captures in test_summary {
         if captures.len() == 4 {
             let label = get_value(&captures, 1);
@@ -88,6 +106,14 @@ pub fn parse(inline: &str) -> TestResult {
 
     test_result
 }
+
+fn stripped_text(inline: &str) -> String {
+// Strip escapes from text
+    let stripped_inline = strip_ansi_escapes::strip(inline).unwrap_or_default();
+    let stripped_text = String::from_utf8(stripped_inline).unwrap();
+    stripped_text
+}
+
 
 fn get_value(captures: &Captures, index: usize) -> String {
     captures.get(index).map_or("", |m| m.as_str().trim()).to_string()
@@ -120,5 +146,5 @@ fn test_parse() {
 │ average response time: 1230ms [min: 1230ms, max: 1230ms, s.d.: 0µs] │
 └─────────────────────────────────────────────────────────────────────┘";
 
-    parse(string);
+    parse_result(string);
 }
