@@ -96,12 +96,8 @@ pub fn run_stream<'a>(command: &'a str) -> impl Stream<Item=Payload> + 'a {
                         // Check if the command executed successfully
                         let command_status = cmd.as_ref().lock().unwrap().wait();
                         match command_status {
-                            Ok(tatus) => {
-                                if tatus.success() {
-                                    yield Payload{ success: true, output: "".to_string() };
-                                } else {
-                                    yield Payload{ success: false, output: "".to_string() };
-                                }
+                            Ok(_) => {
+                                yield Payload{ success: true, output: "".to_string() };
                             }
                             Err(e) => {
                                 yield Payload{ success: false, output: e.to_string() };

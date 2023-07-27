@@ -1,8 +1,10 @@
+use std::fs::File;
+use std::io::Read;
 use serde::{Deserialize, Serialize};
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Root {
+pub struct Reporter {
     pub collection: Collection,
     pub run: Run,
 }
@@ -133,3 +135,13 @@ pub struct Timings {
     pub completed: i64,
 }
 
+pub fn load(name: &str) -> Reporter {
+    let mut file = File::open(format!("reporter/{}.json", name)).expect("Failed to open the file");
+    let mut data = String::new();
+    file.read_to_string(&mut data).expect("Failed to read the file");
+
+    // Deserialize the JSON string into a Reporter struct
+    let reporter: Reporter = serde_json::from_str(&data).expect("Failed to deserialize JSON");
+
+    reporter
+}

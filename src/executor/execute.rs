@@ -1,9 +1,10 @@
 use futures_util::pin_mut;
 use futures_util::stream::StreamExt;
-use crate::{command, config, result};
+use crate::{command, config, reporter, result};
 
 pub async fn run(config: config::conf::Config) {
     let mut test_collections: Vec<result::parser::TestCollection> = Vec::new();
+    let mut test_reporters: Vec<reporter::report::Reporter> = Vec::new();
 
     let report = false;
 
@@ -17,6 +18,10 @@ pub async fn run(config: config::conf::Config) {
         let mut output = String::from("");
         while let Some(value) = stream.next().await {
             println!("{}", value.output);
+
+            if value.success {
+                test_reporters.push(reporter::report::load(cmd.name.as_str()));
+            }
 
             if report {
                 output.push_str(value.output.as_str());
@@ -41,5 +46,5 @@ pub async fn run(config: config::conf::Config) {
         }
     }
 
-    println!("Result: {:?}", test_collections)
+    println!("Reporters: {:?}", test_reporters);
 }
