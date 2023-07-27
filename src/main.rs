@@ -4,12 +4,6 @@ mod result;
 mod executor;
 mod config;
 
-use clap::Parser;
-use serde::{Deserialize, Serialize};
-use serde_yaml::{self};
-use futures_util::pin_mut;
-use futures_util::stream::StreamExt;
-
 #[tokio::main]
 async fn main() {
     println!("                  __

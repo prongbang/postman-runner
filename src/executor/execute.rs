@@ -1,5 +1,3 @@
-use clap::Parser;
-use serde::{Deserialize, Serialize};
 use futures_util::pin_mut;
 use futures_util::stream::StreamExt;
 use crate::{command, config, result};
