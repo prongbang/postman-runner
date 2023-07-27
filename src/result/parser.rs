@@ -45,38 +45,71 @@ pub struct TestCollection {
     pub test_result: TestResult,
 }
 
-pub fn parse_test_name(inline: &str) {
-    let stripped = stripped_text(inline);
+#[derive(Debug, PartialEq)]
+pub struct TestRequest {
+    pub result: String,
+    pub method: String,
+    pub url: String,
+    pub status_code: String,
+    pub status_text: String,
+    pub data_received: String,
+    pub response_time: String,
+}
 
-    // Get test name
-    let regex_test_name = Regex::new(r"[→↳]\s*([A-Za-z0-9!@#$%^&*()_+-{}/<>? ]*)").unwrap();
-    let test_name = regex_test_name.captures_iter(stripped.as_str());
-    for captures in test_name {
-        let name = get_value(&captures, 1);
-        println!("{}", name);
+impl TestRequest {
+    pub fn new() -> Self {
+        Self {
+            result: String::new(),
+            method: String::new(),
+            url: String::new(),
+            status_code: String::new(),
+            status_text: String::new(),
+            data_received: String::new(),
+            response_time: String::new(),
+        }
     }
 }
 
-pub fn parse_test_req(inline: &str) {
+pub fn parse_test_name(inline: &str) -> Option<String> {
     let stripped = stripped_text(inline);
+
+    let mut test_name = String::new();
+
+    // Get test name
+    let regex_test_name = Regex::new(r"[→↳]\s*([A-Za-z0-9!@#$%^&*()_+-{}/<>? ]*)").unwrap();
+    let test_name_capture = regex_test_name.captures_iter(stripped.as_str());
+    for captures in test_name_capture {
+        test_name = get_value(&captures, 1);
+        println!("{}", &test_name);
+
+        return Some(test_name);
+    }
+
+    None
+}
+
+pub fn parse_test_request(inline: &str) -> Option<TestRequest> {
+    let stripped = stripped_text(inline);
+
+    let mut test_request = TestRequest::new();
 
     // Get test name
     let regex_test_req = Regex::new(r"(\S+) (\S+) \[(\d+) (\w+\s*\w+)+, (\S+), (\S+)\]+").unwrap();
-    let test_req = regex_test_req.captures_iter(stripped.as_str());
-    for captures in test_req {
-        let method = get_value(&captures, 1);
-        let url = get_value(&captures, 2);
-        let status_code = get_value(&captures, 3);
-        let status_text = get_value(&captures, 4);
-        let data_received = get_value(&captures, 5);
-        let response_time = get_value(&captures, 6);
-        println!("{}", method);
-        println!("{}", url);
-        println!("{}", status_code);
-        println!("{}", status_text);
-        println!("{}", data_received);
-        println!("{}", response_time);
+    let test_req_capture = regex_test_req.captures_iter(stripped.as_str());
+    for captures in test_req_capture {
+        test_request.result = get_value(&captures, 0);
+        test_request.method = get_value(&captures, 1);
+        test_request.url = get_value(&captures, 2);
+        test_request.status_code = get_value(&captures, 3);
+        test_request.status_text = get_value(&captures, 4);
+        test_request.data_received = get_value(&captures, 5);
+        test_request.response_time = get_value(&captures, 6);
+        println!("{}", &test_request.result);
+
+        return Some(test_request);
     }
+
+    None
 }
 
 pub fn parse_result(inline: &str) -> TestResult {
@@ -110,6 +143,10 @@ pub fn parse_result(inline: &str) -> TestResult {
     }
 
     test_result
+}
+
+pub fn parse_test_function(inline: &str) {
+
 }
 
 fn stripped_text(inline: &str) -> String {

@@ -56,8 +56,15 @@ async fn main() {
             println!("{}", value.output);
 
             // Parse test to struct
-            result::parser::parse_test_name(value.output.as_str());
-            result::parser::parse_test_req(value.output.as_str());
+            if let Some(test_name) = result::parser::parse_test_name(value.output.as_str()) {
+                // TODO set test name to struct
+            } else {
+                if let Some(test_request) = result::parser::parse_test_request(value.output.as_str()) {
+                    // TODO set test request to struct
+                } else {
+                    result::parser::parse_test_function(value.output.as_str())
+                }
+            }
 
             // Parse result to struct
             if value.success {
