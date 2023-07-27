@@ -61,16 +61,21 @@ pub fn parse_test_req(inline: &str) {
     let stripped = stripped_text(inline);
 
     // Get test name
-    let regex_test_req = Regex::new(r"(\S+) (\S+) \[\d+ ([\w+ ])+, \S+, \S+\]+").unwrap();
+    let regex_test_req = Regex::new(r"(\S+) (\S+) \[(\d+) (\w+\s*\w+)+, (\S+), (\S+)\]+").unwrap();
     let test_req = regex_test_req.captures_iter(stripped.as_str());
     for captures in test_req {
         let method = get_value(&captures, 1);
         let url = get_value(&captures, 2);
-        let response = get_value(&captures, 3);
+        let status_code = get_value(&captures, 3);
+        let status_text = get_value(&captures, 4);
+        let data_received = get_value(&captures, 5);
+        let response_time = get_value(&captures, 6);
         println!("{}", method);
         println!("{}", url);
-        println!("{}", response);
-        println!("{:?}", &captures);
+        println!("{}", status_code);
+        println!("{}", status_text);
+        println!("{}", data_received);
+        println!("{}", response_time);
     }
 }
 
