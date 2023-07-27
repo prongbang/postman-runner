@@ -43,6 +43,8 @@ async fn main() {
     // Result
     let mut test_collections: Vec<result::parser::TestCollection> = Vec::new();
 
+    let report = false;
+
     // Run command
     for cmd in config.commands {
         let command = cmd.command.as_str();
@@ -52,24 +54,27 @@ async fn main() {
         pin_mut!(stream); // needed for iteration
         let mut output = String::from("");
         while let Some(value) = stream.next().await {
-            output.push_str(value.output.as_str());
             println!("{}", value.output);
 
-            // Parse test to struct
-            if let Some(test_name) = result::parser::parse_test_name(value.output.as_str()) {
-                // TODO set test name to struct
-            } else {
-                if let Some(test_request) = result::parser::parse_test_request(value.output.as_str()) {
-                    // TODO set test request to struct
-                } else {
-                    result::parser::parse_test_function(value.output.as_str())
-                }
-            }
+            if report {
+                output.push_str(value.output.as_str());
 
-            // Parse result to struct
-            if value.success {
-                let result = result::parser::parse_result(format!("{}", output).as_str());
-                test_collections.push(result::parser::TestCollection { name: cmd.name.to_string(), test_result: result });
+                // Parse test to struct
+                if let Some(test_name) = result::parser::parse_test_name(value.output.as_str()) {
+                    // TODO set test name to struct
+                } else {
+                    if let Some(test_request) = result::parser::parse_test_request(value.output.as_str()) {
+                        // TODO set test request to struct
+                    } else {
+                        result::parser::parse_test_function(value.output.as_str());
+                    }
+                }
+
+                // Parse result to struct
+                if value.success {
+                    let result = result::parser::parse_result(format!("{}", output).as_str());
+                    test_collections.push(result::parser::TestCollection { name: cmd.name.to_string(), test_result: result });
+                }
             }
         }
     }

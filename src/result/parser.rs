@@ -70,6 +70,17 @@ impl TestRequest {
     }
 }
 
+pub fn parse_test_function(inline: &str) {
+    let stripped = stripped_text(inline);
+
+    // Get test function
+    let regex = Regex::new(r"^\s*(?:\d*\.)?✓\s*(.*(?:[^\n]+)?)$").unwrap();
+    let test_fun_capture = regex.captures_iter(stripped.as_str());
+    for captures in test_fun_capture {
+        println!("{:?}", &captures);
+    }
+}
+
 pub fn parse_test_name(inline: &str) -> Option<String> {
     let stripped = stripped_text(inline);
 
@@ -143,10 +154,6 @@ pub fn parse_result(inline: &str) -> TestResult {
     }
 
     test_result
-}
-
-pub fn parse_test_function(inline: &str) {
-
 }
 
 fn stripped_text(inline: &str) -> String {
