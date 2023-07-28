@@ -7,13 +7,13 @@ Run multiple Postman collections with a single command.
 - `config.yml` by default
 
 ```yaml
+report: reporter/report.html
+logger: true
 commands:
-  - name: postman-login
-    command: postman login --with-api-key xxxx
   - name: collection-1
-    command: postman collection run xxxx -e xxxx
+    command: newman run xxxx -e xxxx
   - name: collection-2
-    command: postman collection run xxxx -e xxxx
+    command: newman run xxxx -e xxxx
 ```
 
 ## Install

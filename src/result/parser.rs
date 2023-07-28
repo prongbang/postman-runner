@@ -70,6 +70,9 @@ impl TestRequest {
     }
 }
 
+/// How to use:
+/// result::parser::parse_test_function(value.output.as_str());
+#[allow(dead_code)]
 pub fn parse_test_function(inline: &str) {
     let stripped = stripped_text(inline);
 
@@ -81,16 +84,17 @@ pub fn parse_test_function(inline: &str) {
     }
 }
 
+/// How to use:
+/// result::parser::parse_test_name(value.output.as_str())
+#[allow(dead_code)]
 pub fn parse_test_name(inline: &str) -> Option<String> {
     let stripped = stripped_text(inline);
-
-    let mut test_name = String::new();
 
     // Get test name
     let regex_test_name = Regex::new(r"[→↳]\s*([A-Za-z0-9!@#$%^&*()_+-{}/<>? ]*)").unwrap();
     let test_name_capture = regex_test_name.captures_iter(stripped.as_str());
     for captures in test_name_capture {
-        test_name = get_value(&captures, 1);
+        let test_name = get_value(&captures, 1);
         println!("{}", &test_name);
 
         return Some(test_name);
@@ -99,6 +103,9 @@ pub fn parse_test_name(inline: &str) -> Option<String> {
     None
 }
 
+/// How to use:
+/// result::parser::parse_test_request(value.output.as_str())
+#[allow(dead_code)]
 pub fn parse_test_request(inline: &str) -> Option<TestRequest> {
     let stripped = stripped_text(inline);
 
@@ -123,6 +130,11 @@ pub fn parse_test_request(inline: &str) -> Option<TestRequest> {
     None
 }
 
+/// How to use:
+/// result::parser::parse_result(format!("{}", output).as_str());
+/// let mut test_collections: Vec<result::parser::TestCollection> = Vec::new();
+/// test_collections.push(result::parser::TestCollection { name: cmd.name.to_string(), test_result: result });
+#[allow(dead_code)]
 pub fn parse_result(inline: &str) -> TestResult {
     let stripped = stripped_text(inline);
 
@@ -166,18 +178,20 @@ pub fn extract_url(text: &str) -> Option<String> {
     }
 }
 
+#[allow(dead_code)]
 fn stripped_text(inline: &str) -> String {
-// Strip escapes from text
+    // Strip escapes from text
     let stripped_inline = strip_ansi_escapes::strip(inline).unwrap_or_default();
     let stripped_text = String::from_utf8(stripped_inline).unwrap();
     stripped_text
 }
 
-
+#[allow(dead_code)]
 fn get_value(captures: &Captures, index: usize) -> String {
     captures.get(index).map_or("", |m| m.as_str().trim()).to_string()
 }
 
+#[allow(dead_code)]
 fn get_value_u32(captures: &Captures, index: usize) -> u32 {
     let number: u32 = get_value(captures, index).parse().unwrap();
     return number;

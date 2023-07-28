@@ -12,6 +12,7 @@ struct Args {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub report: String,
+    pub logger: bool,
     pub commands: Vec<Commands>,
 }
 
