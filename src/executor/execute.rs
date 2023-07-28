@@ -11,14 +11,22 @@ pub async fn run(config: &config::conf::Config) {
         cli = "cli,";
     }
 
+    // Reporter
+    let mut  reporter = "html";
+    if !config.report.reporter.is_empty() {
+        reporter = &config.report.reporter.as_str();
+    }
+
     // Run command
     for cmd in &config.commands {
         let mut command = cmd.command.to_string();
-        if !config.report.is_empty() {
+        if !config.report.filename.is_empty() {
             command += &format!(
-                " -r {}json,htmlextra --reporter-json-export reporter/.{}.json --reporter-htmlextra-export reporter/{}.html",
+                " -r {}json,{} --reporter-json-export reporter/.{}.json --reporter-{}-export reporter/{}.html",
                 cli,
+                reporter,
                 &cmd.name,
+                reporter,
                 &cmd.name,
             );
         }

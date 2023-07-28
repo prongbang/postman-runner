@@ -11,7 +11,7 @@ struct Args {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    pub report: String,
+    pub report: Report,
     pub logger: bool,
     pub commands: Vec<Commands>,
 }
@@ -20,6 +20,13 @@ pub struct Config {
 pub struct Commands {
     pub name: String,
     pub command: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Report {
+    pub name: String,
+    pub filename: String,
+    pub reporter: String,
 }
 
 pub fn load() -> Config {

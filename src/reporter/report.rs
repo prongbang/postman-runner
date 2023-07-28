@@ -5,6 +5,8 @@ use crate::config;
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Reporter {
+    #[serde(skip)]
+    pub report_url: String,
     pub collection: Collection,
     pub run: Run,
 }
@@ -147,6 +149,17 @@ pub struct Assertion {
     pub skipped: bool,
 }
 
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CollectionReport {
+    pub report_url: String,
+    pub collection_name: String,
+    pub interactions: i64,
+    pub assertions: i64,
+    pub failed: i64,
+    pub skipped: i64,
+}
+
 pub fn load(name: &str) -> Reporter {
     let file = File::open(format!("reporter/.{}.json", name)).expect("Failed to open the file");
 
@@ -158,25 +171,28 @@ pub fn load(name: &str) -> Reporter {
 
 pub async fn gen(config: &config::conf::Config) {
     println!("→ Generating");
-    println!("Report {}", &config.report);
+    println!("Report {}", &config.report.filename);
 
     let mut test_reporters: Vec<Reporter> = Vec::new();
 
     // Prepare report
     for cmd in &config.commands {
-        test_reporters.push(load(cmd.name.as_str()));
+        let mut report = load(cmd.name.as_str());
+        report.report_url = format!("{}.html", &cmd.name);
+        test_reporters.push(report);
     }
 
     // Generate report
+    let mut collection_report: Vec<CollectionReport> = Vec::new();
     let total_collection = test_reporters.len();
     let mut total_iterations: i64 = 0;
     let mut total_assertions: i64 = 0;
     let mut total_failed_tests: i64 = 0;
     let mut total_skipped_tests: i64 = 0;
     for report in test_reporters {
-        total_iterations += report.run.stats.iterations.total;
-        total_assertions += report.run.stats.assertions.total;
-        total_failed_tests += report.run.stats.iterations.failed
+        let iterations = report.run.stats.iterations.total;
+        let assertions = report.run.stats.assertions.total;
+        let failed_tests = report.run.stats.iterations.failed
             + report.run.stats.items.failed
             + report.run.stats.scripts.failed
             + report.run.stats.prerequests.failed
@@ -185,13 +201,28 @@ pub async fn gen(config: &config::conf::Config) {
             + report.run.stats.assertions.failed
             + report.run.stats.test_scripts.failed
             + report.run.stats.prerequest_scripts.failed;
+        let mut skipped_tests: i64 = 0;
         for exe in report.run.executions.iter() {
             for assertion in exe.assertions.iter() {
                 if assertion.skipped {
-                    total_skipped_tests += 1;
+                    skipped_tests += 1;
                 }
             }
         }
+
+        collection_report.push(CollectionReport {
+            report_url: report.report_url.to_string(),
+            collection_name: report.collection.info.name,
+            interactions: iterations.clone(),
+            assertions: assertions.clone(),
+            failed: failed_tests.clone(),
+            skipped: skipped_tests.clone(),
+        });
+
+        total_iterations += iterations;
+        total_assertions += assertions;
+        total_failed_tests += failed_tests;
+        total_skipped_tests += skipped_tests;
     }
 
     println!("↳ Total collection: {}", total_collection);
@@ -199,4 +230,5 @@ pub async fn gen(config: &config::conf::Config) {
     println!("↳ Total assertions: {}", total_assertions);
     println!("↳ Total failed tests: {}", total_failed_tests);
     println!("↳ Total skipped tests: {}", total_skipped_tests);
+    println!("↳ Collection report: {:?}", collection_report);
 }

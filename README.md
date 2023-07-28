@@ -7,7 +7,10 @@ Run multiple Postman collections with a single command.
 - `config.yml` by default
 
 ```yaml
-report: reporter/report.html
+report:
+  name: Weather Report
+  filename: reporter/weather-report.html
+  reporter: html
 logger: true
 commands:
   - name: collection-1
@@ -15,6 +18,22 @@ commands:
   - name: collection-2
     command: newman run xxxx -e xxxx
 ```
+
+### Reporter
+
+- newman-reporter-html (`html`)
+
+```shell
+npm install -g newman-reporter-html
+```
+
+- newman-reporter-htmlextra (`htmlextra`)
+
+```shell
+npm install -g newman-reporter-htmlextra
+```
+
+
 
 ## Install
 
