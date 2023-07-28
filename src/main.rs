@@ -16,5 +16,5 @@ async fn main() {
     let config = config::conf::load();
 
     // Execute
-    executor::execute::run(config).await;
+    executor::execute::run(&config).await;
 }

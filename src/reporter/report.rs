@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::Read;
 use serde::{Deserialize, Serialize};
+use crate::config;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -136,12 +137,21 @@ pub struct Timings {
 }
 
 pub fn load(name: &str) -> Reporter {
-    let mut file = File::open(format!("reporter/{}.json", name)).expect("Failed to open the file");
-    let mut data = String::new();
-    file.read_to_string(&mut data).expect("Failed to read the file");
+    let file = File::open(format!("reporter/{}.json", name)).expect("Failed to open the file");
 
     // Deserialize the JSON string into a Reporter struct
-    let reporter: Reporter = serde_json::from_str(&data).expect("Failed to deserialize JSON");
+    let reporter: Reporter = serde_json::from_reader(file).expect("Failed to deserialize JSON");
 
     reporter
+}
+
+pub async fn gen(config: &config::conf::Config) {
+    let mut test_reporters: Vec<Reporter> = Vec::new();
+
+    // Generate report
+    for cmd in &config.commands {
+        test_reporters.push(load(cmd.name.as_str()));
+    }
+
+    println!("Reporters: {:?}", test_reporters);
 }
