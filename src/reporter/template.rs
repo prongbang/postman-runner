@@ -13,7 +13,7 @@ pub fn dashboard(report: DashboardReport) -> String {
 <div class='container mx-auto p-4'>
 
     <!-- Header -->
-    <div class='lg:flex lg:items-center lg:justify-between mb-10'>
+    <div class='lg:flex lg:items-center lg:justify-between mb-10 mt-5'>
         <div class='min-w-0 flex-1'>
             <h2 class='text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight'>
                 <span id='title'>Postman Runner Dashboard</span>
@@ -34,19 +34,19 @@ pub fn dashboard(report: DashboardReport) -> String {
 
     <!-- Card Summary -->
     <div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-10'>
-        <div class='bg-white p-6 rounded-lg shadow-md'>
+        <div id='totalIterationsCard' class='p-6 rounded-lg shadow-md'>
             <h2 class='text-lg font-semibold mb-2 upper'>TOTAL ITERATIONS</h2>
             <p id='totalIterations' class='text-6xl font-semibold'>0</p>
         </div>
-        <div class='bg-white p-6 rounded-lg shadow-md'>
+        <div id='totalAssertionsCard' class='p-6 rounded-lg shadow-md'>
             <h2 class='text-lg font-semibold mb-2'>TOTAL ASSERTIONS</h2>
             <p id='totalAssertions' class='text-6xl font-semibold'>0</p>
         </div>
-        <div id='totalFailedTestsCard' class='text-white p-6 rounded-lg shadow-md'>
+        <div id='totalFailedTestsCard' class='p-6 rounded-lg shadow-md'>
             <h2 class='text-lg font-semibold mb-2'>TOTAL FAILED TESTS</h2>
             <p id='totalFailedTests' class='text-6xl font-semibold'>0</p>
         </div>
-        <div class='bg-white p-6 rounded-lg shadow-md'>
+        <div id='totalSkippedTestsCard' class='p-6 rounded-lg shadow-md'>
             <h2 class='text-lg font-semibold mb-2'>TOTAL SKIPPED TESTS</h2>
             <p id='totalSkippedTests' class='text-6xl font-semibold'>0</p>
         </div>
@@ -70,7 +70,10 @@ pub fn dashboard(report: DashboardReport) -> String {
     document.querySelector('#totalAssertions').innerHTML = '{{totalAssertions}}';
     document.querySelector('#totalFailedTests').innerHTML = '{{totalFailedTests}}';
     document.querySelector('#totalSkippedTests').innerHTML = '{{totalSkippedTests}}';
-    document.querySelector('#totalFailedTestsCard').className += '{{totalFailedTests}}' == '0' ? ' bg-green-500' : ' bg-red-500';
+    document.querySelector('#totalIterationsCard').className += '{{totalIterations}}' != '0' ? ' bg-green-500 text-white' : ' bg-yellow-500 text-white';
+    document.querySelector('#totalAssertionsCard').className += '{{totalAssertions}}' != '0' ? ' bg-green-500 text-white' : ' bg-yellow-500 text-white';
+    document.querySelector('#totalFailedTestsCard').className += '{{totalFailedTests}}' == '0' ? ' bg-green-500 text-white' : ' bg-red-500 text-white';
+    document.querySelector('#totalSkippedTestsCard').className += '{{totalFailedTests}}' == '0' ? ' bg-green-500 text-white' : ' bg-yellow-500 text-white';
 
     // Collections
     let collections = {{collections}};
@@ -80,7 +83,7 @@ pub fn dashboard(report: DashboardReport) -> String {
         const card = document.createElement('div');
         card.innerHTML = `
              <a href='${value.reportUrl}'>
-                <div class='${(value.failed == "0" ? "bg-green-500 text-white" : "bg-red-500 text-white")} p-4 rounded-lg shadow-md'>
+                <div class='${(value.failed == "0" ? "border border-green-500" : "border border-red-500")} p-4 rounded-lg shadow-md'>
                     <h2 class='text-lg font-semibold mb-4'>${value.collectionName}</h2>
                     <div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4'>
                         <div>
