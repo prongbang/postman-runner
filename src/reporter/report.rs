@@ -166,6 +166,7 @@ pub struct CollectionReport {
 pub struct DashboardReport {
     pub title: String,
     pub created_at: String,
+    pub total_collection: i64,
     pub total_iterations: i64,
     pub total_assertions: i64,
     pub total_failed_tests: i64,
@@ -201,7 +202,7 @@ pub async fn gen(config: &config::conf::Config) {
 
     // Generate report
     let mut collection_report: Vec<CollectionReport> = Vec::new();
-    let total_collection = test_reporters.len();
+    let total_collection: i64 = test_reporters.len() as i64;
     let mut total_iterations: i64 = 0;
     let mut total_assertions: i64 = 0;
     let mut total_failed_tests: i64 = 0;
@@ -256,6 +257,7 @@ pub async fn gen(config: &config::conf::Config) {
     let dashboard_report = DashboardReport {
         title: title.to_string(),
         created_at: date::chrono::current(),
+        total_collection,
         total_iterations,
         total_assertions,
         total_failed_tests,

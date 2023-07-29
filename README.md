@@ -2,6 +2,8 @@
 
 Run multiple Postman collections with a single command.
 
+![preview.png](screenshots%2Fpreview.png)
+
 ## Configuration
 
 - `config.yml` by default
@@ -19,7 +21,9 @@ commands:
     command: newman run xxxx -e xxxx
 ```
 
-### Reporter
+** The `name` is unique, and there are no duplicates.
+
+### Reporter options by collection
 
 - newman-reporter-html (`html`)
 
@@ -32,8 +36,6 @@ npm install -g newman-reporter-html
 ```shell
 npm install -g newman-reporter-htmlextra
 ```
-
-
 
 ## Install
 

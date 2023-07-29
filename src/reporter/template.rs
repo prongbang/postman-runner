@@ -53,7 +53,7 @@ pub fn dashboard(report: DashboardReport) -> String {
     </div>
 
     <!-- Dashboard Cards -->
-    <h1 class='text-2xl font-bold mb-6'>2 Collections</h1>
+    <h1 class='text-2xl font-bold mb-6'>{{totalCollections}} Collections</h1>
 
     <div class='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' id='collections'></div>
 </div>
@@ -111,13 +111,12 @@ pub fn dashboard(report: DashboardReport) -> String {
 </body>
 </html>"#;
 
-
-
     let json_collections = serde_json::to_string(&report.collections).unwrap();
     format!(
         "{}",
         template.replace("{{title}}", report.title.as_str())
             .replace("{{createdAt}}", report.created_at.as_str())
+            .replace("{{totalCollections}}", &format!("{}", report.total_collection))
             .replace("{{totalIterations}}", &format!("{}", report.total_iterations))
             .replace("{{totalAssertions}}", &format!("{}", report.total_assertions))
             .replace("{{totalFailedTests}}", &format!("{}", report.total_failed_tests))
