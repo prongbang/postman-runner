@@ -2,7 +2,7 @@
 
 Run multiple Postman collections with a single command.
 
-![preview.png](screenshots%2Fpreview.png)
+![preview.png](screenshots/preview.png)
 
 ## Configuration
 
