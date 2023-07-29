@@ -173,11 +173,14 @@ pub struct DashboardReport {
     pub collections: Vec<CollectionReport>,
 }
 
-pub fn load(name: &str) -> Reporter {
-    let file = File::open(format!("reporter/.{}.json", name)).expect("Failed to open the file");
+pub fn load(report_path: &str, name: &str) -> Reporter {
+    let filename = format!("{}/.{}.json", report_path, name);
+    let file = File::open(filename.as_str()).expect("Failed to open the file");
 
     // Deserialize the JSON string into a Reporter struct
     let reporter: Reporter = serde_json::from_reader(file).expect("Failed to deserialize JSON");
+
+    filex::remove(filename.as_str());
 
     reporter
 }
@@ -186,11 +189,12 @@ pub async fn gen(config: &config::conf::Config) {
     println!("→ Generating");
     println!("↳ Report {}", &config.report.filename);
 
+    let report_path = filex::get_path(config.report.filename.as_str());
     let mut test_reporters: Vec<Reporter> = Vec::new();
 
     // Prepare report
     for cmd in &config.commands {
-        let mut report = load(cmd.name.as_str());
+        let mut report = load(report_path.as_str(), cmd.name.as_str());
         report.report_url = format!("{}.html", &cmd.name);
         test_reporters.push(report);
     }

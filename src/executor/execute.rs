@@ -1,6 +1,6 @@
 use futures_util::pin_mut;
 use futures_util::stream::StreamExt;
-use crate::{command, config, reporter};
+use crate::{command, config, filex, reporter};
 
 pub async fn run(config: &config::conf::Config) {
     println!("→ Running");
@@ -12,21 +12,24 @@ pub async fn run(config: &config::conf::Config) {
     }
 
     // Reporter
-    let mut  reporter = "html";
+    let mut reporter = "html";
     if !config.report.reporter.is_empty() {
         reporter = &config.report.reporter.as_str();
     }
+    let report_path = filex::get_path(config.report.filename.as_str());
 
     // Run command
     for cmd in &config.commands {
         let mut command = cmd.command.to_string();
         if !config.report.filename.is_empty() {
             command += &format!(
-                " -r {}json,{} --reporter-json-export reporter/.{}.json --reporter-{}-export reporter/{}.html",
+                " -r {}json,{} --reporter-json-export {}/.{}.json --reporter-{}-export {}/{}.html",
                 cli,
                 reporter,
+                &report_path,
                 &cmd.name,
                 reporter,
+                &report_path,
                 &cmd.name,
             );
         }

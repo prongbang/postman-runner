@@ -2,6 +2,11 @@ use std::fs::{self, File};
 use std::io::{self, prelude::*};
 use std::path::Path;
 
+pub fn get_path(filename: &str) -> String {
+    let parent_dir = Path::new(filename).parent().unwrap();
+    parent_dir.to_path_buf().display().to_string()
+}
+
 pub fn write(filename: &str, content: &str) -> io::Result<()> {
     let parent_dir = Path::new(filename).parent().unwrap();
 
@@ -17,4 +22,20 @@ pub fn write(filename: &str, content: &str) -> io::Result<()> {
     file.write_all(content.as_bytes())?;
 
     Ok(())
+}
+
+pub fn remove(file_path: &str) {
+    let _ = fs::remove_file(file_path);
+}
+
+#[test]
+fn test_get_path() {
+    // Given
+    let filename = "reporter/feature/report.html";
+
+    // When
+    let actual = get_path(filename);
+
+    // Then
+    assert_eq!(actual, "reporter/feature")
 }
