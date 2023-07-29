@@ -37,6 +37,18 @@ npm install -g newman-reporter-html
 npm install -g newman-reporter-htmlextra
 ```
 
+### Report HTML
+
+```shell
+➜  automate-api git:(master) ✗ 
+├── config.yml
+└── reporter
+    ├── get-weather-1.html
+    ├── get-weather-2.html
+    ├── get-weather-3.html
+    └── weather-report.html
+```
+
 ## Install
 
 ### With Cargo Install
