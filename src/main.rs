@@ -3,6 +3,8 @@ mod reporter;
 mod result;
 mod executor;
 mod config;
+mod date;
+mod filex;
 
 #[tokio::main]
 async fn main() {

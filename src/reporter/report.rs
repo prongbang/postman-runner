@@ -1,6 +1,7 @@
 use std::fs::File;
 use serde::{Deserialize, Serialize};
-use crate::config;
+use crate::{config, date, filex};
+use crate::reporter::template::dashboard;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -160,6 +161,18 @@ pub struct CollectionReport {
     pub skipped: i64,
 }
 
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DashboardReport {
+    pub title: String,
+    pub created_at: String,
+    pub total_iterations: i64,
+    pub total_assertions: i64,
+    pub total_failed_tests: i64,
+    pub total_skipped_tests: i64,
+    pub collections: Vec<CollectionReport>,
+}
+
 pub fn load(name: &str) -> Reporter {
     let file = File::open(format!("reporter/.{}.json", name)).expect("Failed to open the file");
 
@@ -171,7 +184,7 @@ pub fn load(name: &str) -> Reporter {
 
 pub async fn gen(config: &config::conf::Config) {
     println!("→ Generating");
-    println!("Report {}", &config.report.filename);
+    println!("↳ Report {}", &config.report.filename);
 
     let mut test_reporters: Vec<Reporter> = Vec::new();
 
@@ -225,10 +238,30 @@ pub async fn gen(config: &config::conf::Config) {
         total_skipped_tests += skipped_tests;
     }
 
-    println!("↳ Total collection: {}", total_collection);
-    println!("↳ Total iterations: {}", total_iterations);
-    println!("↳ Total assertions: {}", total_assertions);
-    println!("↳ Total failed tests: {}", total_failed_tests);
-    println!("↳ Total skipped tests: {}", total_skipped_tests);
-    println!("↳ Collection report: {:?}", collection_report);
+    println!("\t↳ Total collection: {}", &total_collection);
+    println!("\t↳ Total iterations: {}", &total_iterations);
+    println!("\t↳ Total assertions: {}", &total_assertions);
+    println!("\t↳ Total failed tests: {}", &total_failed_tests);
+    println!("\t↳ Total skipped tests: {}", &total_skipped_tests);
+
+    let mut title = "Postman Runner Dashboard";
+    if !config.report.name.is_empty() {
+        title = config.report.name.as_str();
+    }
+
+    let dashboard_report = DashboardReport {
+        title: title.to_string(),
+        created_at: date::chrono::current(),
+        total_iterations,
+        total_assertions,
+        total_failed_tests,
+        total_skipped_tests,
+        collections: collection_report,
+    };
+    let html = dashboard(dashboard_report);
+    if let Ok(_) = filex::write(config.report.filename.as_str(), html.as_str()) {
+        println!("\t↳ File created at: {}", config.report.filename);
+    } else {
+        println!("\t↳ Cannot create file at: {}", config.report.filename);
+    }
 }
