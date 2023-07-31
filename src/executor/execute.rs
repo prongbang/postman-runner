@@ -2,6 +2,8 @@ use futures_util::pin_mut;
 use futures_util::stream::StreamExt;
 use crate::{command, config, filex, reporter};
 
+pub const NEWMAN_CLI: &str = "newman";
+
 pub async fn run(config: &config::conf::Config) {
     println!("→ Running");
 
@@ -21,7 +23,7 @@ pub async fn run(config: &config::conf::Config) {
     // Run command
     for cmd in &config.commands {
         let mut command = cmd.command.to_string();
-        if !config.report.filename.is_empty() {
+        if !config.report.filename.is_empty() && command.contains(NEWMAN_CLI) {
             command += &format!(
                 " -r {}json,{} --reporter-json-export {}/.{}.json --reporter-{}-export {}/{}.html",
                 cli,

@@ -1,6 +1,6 @@
 use std::fs::File;
 use serde::{Deserialize, Serialize};
-use crate::{config, date, filex};
+use crate::{config, date, executor, filex};
 use crate::reporter::template::dashboard;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -187,18 +187,25 @@ pub fn load(report_path: &str, name: &str) -> Reporter {
 }
 
 pub async fn gen(config: &config::conf::Config) {
-    println!("→ Generating");
-    println!("↳ Report {}", &config.report.filename);
-
     let report_path = filex::get_path(config.report.filename.as_str());
     let mut test_reporters: Vec<Reporter> = Vec::new();
 
     // Prepare report
     for cmd in &config.commands {
-        let mut report = load(report_path.as_str(), cmd.name.as_str());
-        report.report_url = format!("{}.html", &cmd.name);
-        test_reporters.push(report);
+        if cmd.command.contains(executor::execute::NEWMAN_CLI) {
+            let mut report = load(report_path.as_str(), cmd.name.as_str());
+            report.report_url = format!("{}.html", &cmd.name);
+            test_reporters.push(report);
+        }
     }
+
+    // Check test reporters
+    if test_reporters.is_empty() {
+        return;
+    }
+
+    println!("→ Generating");
+    println!("↳ Report {}", &config.report.filename);
 
     // Generate report
     let mut collection_report: Vec<CollectionReport> = Vec::new();
