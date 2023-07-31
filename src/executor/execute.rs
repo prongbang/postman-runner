@@ -18,12 +18,16 @@ pub async fn run(config: &config::conf::Config) {
     if !config.report.reporter.is_empty() {
         reporter = &config.report.reporter.as_str();
     }
-    let report_path = filex::get_path(config.report.filename.as_str());
+
+    let mut report_path = String::new();
+    if !config.report.filename.is_empty() {
+        report_path = filex::get_path(config.report.filename.as_str());
+    }
 
     // Run command
     for cmd in &config.commands {
         let mut command = cmd.command.to_string();
-        if !config.report.filename.is_empty() && command.contains(NEWMAN_CLI) {
+        if !report_path.is_empty() && command.contains(NEWMAN_CLI) {
             command += &format!(
                 " -r {}json,{} --reporter-json-export {}/.{}.json --reporter-{}-export {}/{}.html",
                 cli,

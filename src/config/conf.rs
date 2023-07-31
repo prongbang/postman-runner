@@ -11,7 +11,9 @@ struct Args {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
+    #[serde(default = "Report::new")]
     pub report: Report,
+    #[serde(default)]
     pub logger: bool,
     pub commands: Vec<Commands>,
 }
@@ -27,6 +29,16 @@ pub struct Report {
     pub name: String,
     pub filename: String,
     pub reporter: String,
+}
+
+impl Report {
+    pub fn new() -> Self {
+        Self {
+            name: String::new(),
+            filename: String::new(),
+            reporter: String::new(),
+        }
+    }
 }
 
 pub fn load() -> Config {

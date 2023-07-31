@@ -187,6 +187,10 @@ pub fn load(report_path: &str, name: &str) -> Reporter {
 }
 
 pub async fn gen(config: &config::conf::Config) {
+    if config.report.filename.is_empty() {
+        return;
+    }
+
     let report_path = filex::get_path(config.report.filename.as_str());
     let mut test_reporters: Vec<Reporter> = Vec::new();
 
