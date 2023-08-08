@@ -181,8 +181,6 @@ pub fn load(report_path: &str, name: &str) -> Reporter {
     // Deserialize the JSON string into a Reporter struct
     let reporter: Reporter = serde_json::from_reader(file).expect("Failed to deserialize JSON");
 
-    filex::remove(filename.as_str());
-
     reporter
 }
 
@@ -259,6 +257,14 @@ pub async fn gen(config: &config::conf::Config) {
     println!("\t↳ Total assertions: {}", &total_assertions);
     println!("\t↳ Total failed tests: {}", &total_failed_tests);
     println!("\t↳ Total skipped tests: {}", &total_skipped_tests);
+
+    // Remove cache files
+    for cmd in &config.commands {
+        if cmd.command.contains(executor::execute::NEWMAN_CLI) {
+            let filename = format!("{}/.{}.json", report_path.as_str(), cmd.name.as_str());
+            filex::remove(filename.as_str());
+        }
+    }
 
     let mut title = "Postman Runner Dashboard";
     if !config.report.name.is_empty() {

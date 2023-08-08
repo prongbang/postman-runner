@@ -74,7 +74,7 @@ pub fn dashboard(report: DashboardReport) -> String {
     document.querySelector('#totalIterationsCard').className += '{{totalIterations}}' != '0' ? ' bg-green-500 text-white' : ' bg-yellow-500 text-white';
     document.querySelector('#totalAssertionsCard').className += '{{totalAssertions}}' != '0' ? ' bg-green-500 text-white' : ' bg-yellow-500 text-white';
     document.querySelector('#totalFailedTestsCard').className += '{{totalFailedTests}}' == '0' ? ' bg-green-500 text-white' : ' bg-red-500 text-white';
-    document.querySelector('#totalSkippedTestsCard').className += '{{totalFailedTests}}' == '0' ? ' bg-green-500 text-white' : ' bg-yellow-500 text-white';
+    document.querySelector('#totalSkippedTestsCard').className += '{{totalSkippedTests}}' == '0' ? ' bg-green-500 text-white' : ' bg-yellow-500 text-white';
 
     // Collections
     let collections = {{collections}};
