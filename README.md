@@ -25,6 +25,12 @@ commands:
 
 ### Reporter options by collection
 
+- newman
+
+```shell
+brew install newman
+```
+
 - newman-reporter-html (`html`)
 
 ```shell
