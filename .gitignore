@@ -1,4 +1,6 @@
 /target
 .idea/
+/environment
+/reporter
 .DS_Store
 config.yml

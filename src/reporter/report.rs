@@ -141,7 +141,7 @@ pub struct Timings {
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Execution {
-    pub assertions: Vec<Assertion>,
+    pub assertions: Option<Vec<Assertion>>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -228,11 +228,15 @@ pub async fn gen(config: &config::conf::Config) {
             + report.run.stats.assertions.failed
             + report.run.stats.test_scripts.failed
             + report.run.stats.prerequest_scripts.failed;
+
+        // Calculate skipped test
         let mut skipped_tests: i64 = 0;
         for exe in report.run.executions.iter() {
-            for assertion in exe.assertions.iter() {
-                if assertion.skipped {
-                    skipped_tests += 1;
+            if let Some(assertions) = &exe.assertions {
+                for assertion in assertions.iter() {
+                    if assertion.skipped {
+                        skipped_tests += 1;
+                    }
                 }
             }
         }
