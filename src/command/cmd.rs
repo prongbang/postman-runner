@@ -1,3 +1,4 @@
+use std::io;
 use std::process::{Command, Stdio};
 use std::io::{BufRead, BufReader};
 use std::sync::{Arc, Mutex};
@@ -49,6 +50,25 @@ pub fn run(command: &str) -> Result<String, String> {
     }
 }
 
+#[cfg(unix)]
+fn run_command(command: &str) -> io::Result<std::process::Child> {
+    Command::new("sh")
+        .arg("-c")
+        .arg(&command)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+}
+
+#[cfg(windows)]
+fn run_command(command: &str) -> io::Result<std::process::Child> {
+    Command::new("cmd")
+        .args(&["/C", &command])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+}
+
 /// run_stream
 ///
 /// # Arguments
@@ -72,12 +92,7 @@ pub fn run(command: &str) -> Result<String, String> {
 pub fn run_stream<'a>(command: &'a str) -> impl Stream<Item=Payload> + 'a {
     async_stream::stream! {
         // Execute the command in the shell
-        let cmd = Command::new("sh")
-            .arg("-c")
-            .arg(&command)
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .spawn();
+        let cmd = run_command(command);
 
         match cmd {
             Ok(cmd) => {
