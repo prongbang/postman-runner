@@ -59,19 +59,27 @@ npm install -g newman-reporter-htmlextra
 
 ## Install
 
-### Install Rust
+### Install with Homebrew
+
+```shell
+brew update
+brew tap prongbang/homebrew-formulae
+brew install postman-runner
+```
+
+### Install with Rust
 
 ```shell
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 ```
 
-### With Cargo Install
+#### With Cargo Install
 
 ```shell
 cargo install postman-runner --git https://github.com/prongbang/postman-runner.git
 ```
 
-### With Cargo Build
+#### With Cargo Build
 
 ```shell
 cargo build --release
