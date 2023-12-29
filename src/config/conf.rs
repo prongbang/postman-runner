@@ -22,6 +22,13 @@ pub struct Config {
 pub struct Commands {
     pub name: String,
     pub command: String,
+    pub skipped: Option<bool>,
+}
+
+impl Commands {
+    pub(crate) fn is_skipped(&self) -> bool {
+        self.skipped.unwrap_or(false)
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

@@ -3,4 +3,4 @@
 /environment
 /reporter
 .DS_Store
-config.yml
+config.**

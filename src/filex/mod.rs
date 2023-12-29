@@ -7,6 +7,10 @@ pub fn get_path(filename: &str) -> String {
     parent_dir.to_path_buf().display().to_string()
 }
 
+pub fn file_exists(file_path: &str) -> bool {
+    fs::metadata(file_path).is_ok()
+}
+
 pub fn write(filename: &str, content: &str) -> io::Result<()> {
     let parent_dir = Path::new(filename).parent().unwrap();
 
@@ -25,7 +29,9 @@ pub fn write(filename: &str, content: &str) -> io::Result<()> {
 }
 
 pub fn remove(file_path: &str) {
-    let _ = fs::remove_file(file_path);
+    if file_exists(file_path) {
+        let _ = fs::remove_file(file_path);
+    }
 }
 
 #[test]

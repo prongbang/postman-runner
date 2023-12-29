@@ -29,23 +29,23 @@ pub struct Info {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Run {
-    pub stats: Stats,
-    pub timings: Timings,
+    pub stats: Option<Stats>,
+    pub timings: Option<Timings>,
     pub executions: Vec<Execution>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Stats {
-    pub iterations: Iterations,
-    pub items: Items,
-    pub scripts: Scripts,
-    pub prerequests: Prerequests,
-    pub requests: Requests,
-    pub tests: Tests,
-    pub assertions: Assertions,
-    pub test_scripts: TestScripts,
-    pub prerequest_scripts: PrerequestScripts,
+    pub iterations: Option<Iterations>,
+    pub items: Option<Items>,
+    pub scripts: Option<Scripts>,
+    pub prerequests: Option<Prerequests>,
+    pub requests: Option<Requests>,
+    pub tests: Option<Tests>,
+    pub assertions: Option<Assertions>,
+    pub test_scripts: Option<TestScripts>,
+    pub prerequest_scripts: Option<PrerequestScripts>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -159,6 +159,7 @@ pub struct CollectionReport {
     pub assertions: i64,
     pub failed: i64,
     pub skipped: i64,
+    pub run_duration: f64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -171,6 +172,7 @@ pub struct DashboardReport {
     pub total_assertions: i64,
     pub total_failed_tests: i64,
     pub total_skipped_tests: i64,
+    pub total_run_durations: f64,
     pub collections: Vec<CollectionReport>,
 }
 
@@ -185,15 +187,22 @@ pub fn load(report_path: &str, name: &str) -> Reporter {
 }
 
 pub async fn gen(config: &config::conf::Config) {
-    if config.report.filename.is_empty() {
-        return;
+    println!("→ Test results");
+
+    let mut filename = "reporter/index.html".to_string();
+    if !config.report.filename.is_empty() {
+        filename = config.report.filename.clone()
     }
 
-    let report_path = filex::get_path(config.report.filename.as_str());
-    let mut test_reporters: Vec<Reporter> = Vec::new();
-
     // Prepare report
+    let report_path = filex::get_path(filename.as_str());
+    let mut test_reporters: Vec<Reporter> = Vec::new();
     for cmd in &config.commands {
+        // Check skipped test collection
+        if cmd.is_skipped() {
+            continue;
+        }
+
         if cmd.command.contains(executor::execute::NEWMAN_CLI) {
             let mut report = load(report_path.as_str(), cmd.name.as_str());
             report.report_url = format!("{}.html", &cmd.name);
@@ -203,11 +212,9 @@ pub async fn gen(config: &config::conf::Config) {
 
     // Check test reporters
     if test_reporters.is_empty() {
+        println!("  x No test results");
         return;
     }
-
-    println!("→ Generating");
-    println!("↳ Report {}", &config.report.filename);
 
     // Generate report
     let mut collection_report: Vec<CollectionReport> = Vec::new();
@@ -216,24 +223,55 @@ pub async fn gen(config: &config::conf::Config) {
     let mut total_assertions: i64 = 0;
     let mut total_failed_tests: i64 = 0;
     let mut total_skipped_tests: i64 = 0;
+    let mut total_run_durations: f64 = 0.0;
     for report in test_reporters {
-        let iterations = report.run.stats.iterations.total;
-        let assertions = report.run.stats.assertions.total;
-        let failed_tests = report.run.stats.iterations.failed
-            + report.run.stats.items.failed
-            + report.run.stats.scripts.failed
-            + report.run.stats.prerequests.failed
-            + report.run.stats.requests.failed
-            + report.run.stats.tests.failed
-            + report.run.stats.assertions.failed
-            + report.run.stats.test_scripts.failed
-            + report.run.stats.prerequest_scripts.failed;
+        // Total run duration per seconds
+        let mut run_duration: f64 = 0.0;
+        if let Some(timings) = report.run.timings {
+            run_duration = (timings.completed - timings.started) / 1000.0;
+        }
+
+        // Calculate iterations, assertions and failed test
+        let mut iterations: i64 = 0;
+        let mut assertions: i64 = 0;
+        let mut failed_tests: i64 = 0;
+        if let Some(stats) = report.run.stats {
+            if let Some(iteration) = stats.iterations {
+                iterations = iteration.total;
+                failed_tests += iteration.failed;
+            }
+            if let Some(assertion) = stats.assertions {
+                assertions = assertion.total;
+                failed_tests += assertion.failed;
+            }
+            if let Some(items) = stats.items {
+                failed_tests += items.failed;
+            }
+            if let Some(scripts) = stats.scripts {
+                failed_tests += scripts.failed;
+            }
+            if let Some(prerequests) = stats.prerequests {
+                failed_tests += prerequests.failed;
+            }
+            if let Some(requests) = stats.requests {
+                failed_tests += requests.failed;
+            }
+            if let Some(tests) = stats.tests {
+                failed_tests += tests.failed;
+            }
+            if let Some(test_scripts) = stats.test_scripts {
+                failed_tests += test_scripts.failed;
+            }
+            if let Some(prerequest_scripts) = stats.prerequest_scripts {
+                failed_tests += prerequest_scripts.failed;
+            }
+        }
 
         // Calculate skipped test
         let mut skipped_tests: i64 = 0;
-        for exe in report.run.executions.iter() {
+        for exe in report.run.executions {
             if let Some(assertions) = &exe.assertions {
-                for assertion in assertions.iter() {
+                for assertion in assertions {
                     if assertion.skipped {
                         skipped_tests += 1;
                     }
@@ -248,22 +286,32 @@ pub async fn gen(config: &config::conf::Config) {
             assertions: assertions.clone(),
             failed: failed_tests.clone(),
             skipped: skipped_tests.clone(),
+            run_duration: run_duration.clone(),
         });
 
         total_iterations += iterations;
         total_assertions += assertions;
         total_failed_tests += failed_tests;
         total_skipped_tests += skipped_tests;
+        total_run_durations += run_duration;
     }
 
-    println!("\t↳ Total collection: {}", &total_collection);
-    println!("\t↳ Total iterations: {}", &total_iterations);
-    println!("\t↳ Total assertions: {}", &total_assertions);
-    println!("\t↳ Total failed tests: {}", &total_failed_tests);
-    println!("\t↳ Total skipped tests: {}", &total_skipped_tests);
+    println!("  ✓ Total run durations: {}s", &total_run_durations);
+    println!("  ✓ Total collection: {}", &total_collection);
+    println!("  ✓ Total iterations: {}", &total_iterations);
+    println!("  ✓ Total assertions: {}", &total_assertions);
+    println!("  ✓ Total failed tests: {}", &total_failed_tests);
+    println!("  ✓ Total skipped tests: {}", &total_skipped_tests);
+
+    println!("\n→ Generate a report");
 
     // Remove cache files
     for cmd in &config.commands {
+        // Check skipped test collection
+        if cmd.is_skipped() {
+            continue;
+        }
+
         if cmd.command.contains(executor::execute::NEWMAN_CLI) {
             let filename = format!("{}/.{}.json", report_path.as_str(), cmd.name.as_str());
             filex::remove(filename.as_str());
@@ -283,12 +331,13 @@ pub async fn gen(config: &config::conf::Config) {
         total_assertions,
         total_failed_tests,
         total_skipped_tests,
+        total_run_durations,
         collections: collection_report,
     };
     let html = dashboard(dashboard_report);
-    if let Ok(_) = filex::write(config.report.filename.as_str(), html.as_str()) {
-        println!("\t↳ File created at: {}", config.report.filename);
+    if let Ok(_) = filex::write(filename.as_str(), html.as_str()) {
+        println!("  ✓ Generated the file at: {}", filename);
     } else {
-        println!("\t↳ Cannot create file at: {}", config.report.filename);
+        println!("  x Cannot generate the file at: {}", filename);
     }
 }

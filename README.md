@@ -20,10 +20,13 @@ commands:
   - name: collection-1
     command: newman run xxxx -e xxxx
   - name: collection-2
+    skipped: true
     command: newman run xxxx -e xxxx
 ```
 
 ** The `name` is unique, and there are no duplicates.
+
+** The skipped: true flag indicates that the test collection is skipped.
 
 ### Reporter options by collection
 
@@ -66,6 +69,8 @@ brew update
 brew tap prongbang/homebrew-formulae
 brew install postman-runner
 ```
+
+or
 
 ### Install with Rust
 

@@ -39,6 +39,12 @@ pub async fn run(config: &config::conf::Config) {
                 &cmd.name,
             );
         }
+
+        // Check skipped test collection
+        if cmd.is_skipped() {
+            continue;
+        }
+
         println!("{}:\n↳ {}", &cmd.name, command);
 
         let stream = command::cmd::run_stream(&command);
