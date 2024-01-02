@@ -26,7 +26,7 @@ commands:
 
 ** The `name` is unique, and there are no duplicates.
 
-** The skipped: true flag indicates that the test collection is skipped.
+** The `skipped: true` flag indicates that the test collection is skipped.
 
 ### Reporter options by collection
 
