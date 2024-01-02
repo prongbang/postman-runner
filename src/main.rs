@@ -1,4 +1,3 @@
-mod command;
 mod reporter;
 mod result;
 mod executor;

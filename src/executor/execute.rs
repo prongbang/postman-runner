@@ -1,6 +1,6 @@
 use futures_util::pin_mut;
 use futures_util::stream::StreamExt;
-use crate::{command, config, filex, reporter};
+use crate::{config, filex, reporter};
 
 pub const NEWMAN_CLI: &str = "newman";
 
@@ -47,7 +47,7 @@ pub async fn run(config: &config::conf::Config) {
 
         println!("{}:\n↳ {}", &cmd.name, command);
 
-        let stream = command::cmd::run_stream(&command);
+        let stream = cmdwrap::run_stream(&command);
         pin_mut!(stream); // needed for iteration
         while let Some(value) = stream.next().await {
             if config.logger {
