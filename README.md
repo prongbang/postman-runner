@@ -6,6 +6,20 @@ Run multiple Postman collections with a single command.
 
 ![preview.png](screenshots/preview.png)
 
+## Run
+
+- Run multiple commands
+
+```shell
+postman-runner --config config.yml
+```
+
+- Run single command
+
+```shell
+postman-runner --config config.yml --name collection-1
+```
+
 ## Configuration
 
 - `config.yml` by default
@@ -90,8 +104,3 @@ cargo install postman-runner --git https://github.com/prongbang/postman-runner.g
 cargo build --release
 ```
 
-## Run
-
-```shell
-postman-runner --config config.yml
-```
