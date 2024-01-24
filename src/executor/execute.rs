@@ -4,7 +4,7 @@ use crate::{config, filex, reporter};
 
 pub const NEWMAN_CLI: &str = "newman";
 
-pub async fn run(config: &config::conf::Config) {
+pub async fn run(config: &mut config::conf::Config) {
     println!("→ Running");
 
     // Logger
@@ -25,7 +25,17 @@ pub async fn run(config: &config::conf::Config) {
     }
 
     // Run command
-    for cmd in &config.commands {
+    for cmd in &mut config.commands {
+
+        // run by command name
+        if let Some(name) = &config.command_name {
+            if *name == cmd.name {
+                cmd.skipped = Some(false);
+            } else {
+                cmd.skipped = Some(true);
+            }
+        }
+
         let mut command = cmd.command.to_string();
         if !report_path.is_empty() && command.contains(NEWMAN_CLI) {
             command += &format!(

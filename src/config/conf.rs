@@ -7,6 +7,8 @@ use serde_yaml::{self};
 struct Args {
     #[arg(short, long, default_value = "config.yml")]
     config: String,
+    #[arg(short, long)]
+    name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -16,6 +18,7 @@ pub struct Config {
     #[serde(default)]
     pub logger: bool,
     pub commands: Vec<Commands>,
+    pub command_name: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -53,7 +56,10 @@ pub fn load() -> Config {
 
     // Parse yml to struct
     let file = std::fs::File::open(args.config).expect("Could not open file.");
-    let config: Config = serde_yaml::from_reader(file).expect("Could not read values.");
+    let mut config: Config = serde_yaml::from_reader(file).expect("Could not read values.");
+
+    // Set command name
+    config.command_name = args.name;
 
     config
 }

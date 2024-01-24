@@ -32,3 +32,6 @@ zip_macos_arm64:
 # make build_macos version=0.2.0
 build_macos_release:
 	make build_macos version=0.2.0
+
+install:
+	cargo install --path .
