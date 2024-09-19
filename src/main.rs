@@ -4,6 +4,7 @@ mod executor;
 mod config;
 mod date;
 mod filex;
+mod common;
 
 #[tokio::main]
 async fn main() {
@@ -18,5 +19,5 @@ async fn main() {
     let mut config = config::conf::load();
 
     // Execute
-    executor::execute::run(&mut config).await;
+    executor::execute::exec(&mut config).await;
 }

@@ -8,6 +8,12 @@ Run multiple Postman collections with a single command.
 
 ## Run
 
+- Run sync commands for run on local
+
+```shell
+postman-runner --sync
+```
+
 - Run multiple commands
 
 ```shell

@@ -9,6 +9,8 @@ struct Args {
     config: String,
     #[arg(short, long)]
     name: Option<String>,
+    #[arg(short, long, default_value_t = false)]
+    sync: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -17,6 +19,8 @@ pub struct Config {
     pub report: Report,
     #[serde(default)]
     pub logger: bool,
+    #[serde(default)]
+    pub sync: bool,
     pub commands: Vec<Commands>,
     pub command_name: Option<String>,
 }
@@ -60,6 +64,7 @@ pub fn load() -> Config {
 
     // Set command name
     config.command_name = args.name;
+    config.sync = args.sync;
 
     config
 }
