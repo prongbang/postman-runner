@@ -29,9 +29,9 @@ zip_macos_arm64:
 	tar -zcvf $(version)_Darwin_arm64.tar.gz postman-runner && \
 	cd ../../../
 
-# make build_macos version=0.3.0
+# make build_macos version=0.3.1
 build_macos_release:
-	make build_macos version=0.3.0
+	make build_macos version=0.3.1
 
 install:
 	cargo install --path .
