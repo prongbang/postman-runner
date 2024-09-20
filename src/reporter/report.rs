@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::path::Path;
+use std::process::exit;
 use serde::{Deserialize, Serialize};
 use crate::{config, date, executor, filex};
 use crate::reporter::template::dashboard;
@@ -220,8 +221,8 @@ pub async fn gen(config: &config::conf::Config) {
 
     // Check test reporters
     if test_reporters.is_empty() {
-        println!("  x No test results");
-        return;
+        eprintln!("  x No test results");
+        exit(1);
     }
 
     // Generate report
