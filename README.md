@@ -38,6 +38,7 @@ report:
 logger: true
 commands:
   - name: collection-1
+    collection: local
     command: newman run xxxx -e xxxx
   - name: collection-2
     skipped: true

@@ -3,6 +3,7 @@ use futures_util::stream::StreamExt;
 use crate::{common, config, filex, reporter};
 
 pub const NEWMAN_CLI: &str = "newman";
+pub const COLLECTION_LOCAL: &str = "local";
 
 pub async fn exec(config: &mut config::conf::Config) {
     if config.sync {
@@ -13,18 +14,16 @@ pub async fn exec(config: &mut config::conf::Config) {
 }
 
 pub async fn sync(config: &mut config::conf::Config) {
-    if config.sync {
-        for cmd in &mut config.commands {
-            if let Some(url) = common::extract_url(cmd.command.as_str()) {
-                if let Some(file_path) = common::extract_path(url.as_str()) {
-                    let file_path = format!(".{}", file_path);
-                    match common::download_file(url.as_str(), file_path.as_str()) {
-                        Ok(_) => {
-                            println!("→ File downloaded and saved to {}", file_path);
-                        }
-                        Err(err) => {
-                            println!("→ {:?}", err)
-                        }
+    for cmd in &mut config.commands {
+        if let Some(url) = common::extract_url(cmd.command.as_str()) {
+            if let Some(file_path) = common::extract_path(url.as_str()) {
+                let file_path = format!(".{}", file_path);
+                match common::download_file(url.as_str(), file_path.as_str()) {
+                    Ok(_) => {
+                        println!("→ File downloaded and saved to {}", file_path);
+                    }
+                    Err(err) => {
+                        println!("→ {:?}", err)
                     }
                 }
             }
@@ -68,15 +67,13 @@ pub async fn run(config: &mut config::conf::Config) {
         if !report_path.is_empty() && command.contains(NEWMAN_CLI) {
 
             // convert URL to directory path
-            if config.sync {
+            if cmd.collection == COLLECTION_LOCAL {
                 if let Some(url) = common::extract_url(cmd.command.as_str()) {
                     if let Some(path) = common::extract_path(url.as_str()) {
                         command = command.replace(url.as_str(), format!(".{}", path).as_str())
                     }
                 }
             }
-
-            println!("command: {}", &command);
 
             command += &format!(
                 " -r {}json,{} --reporter-json-export {}/.{}.json --reporter-{}-export {}/{}.html",

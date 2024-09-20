@@ -28,6 +28,7 @@ pub struct Config {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Commands {
     pub name: String,
+    pub collection: String,
     pub command: String,
     pub skipped: Option<bool>,
 }
