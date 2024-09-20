@@ -37,6 +37,9 @@ report:
   reporter: html
 logger: true
 commands:
+  - name: newman
+    standalone: true
+    command: newman -v
   - name: collection-1
     collection: local
     command: newman run xxxx -e xxxx
@@ -46,8 +49,9 @@ commands:
 ```
 
 ** The `name` is unique, and there are no duplicates.
-
+** The `collection: local` flag run the collection locally.
 ** The `skipped: true` flag indicates that the test collection is skipped.
+** The `standalone: true` flag run the command only.
 
 ### Reporter options by collection
 

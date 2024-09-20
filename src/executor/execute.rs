@@ -67,24 +67,29 @@ pub async fn run(config: &mut config::conf::Config) {
         if !report_path.is_empty() && command.contains(NEWMAN_CLI) {
 
             // convert URL to directory path
-            if cmd.collection == COLLECTION_LOCAL {
-                if let Some(url) = common::extract_url(cmd.command.as_str()) {
-                    if let Some(path) = common::extract_path(url.as_str()) {
-                        command = command.replace(url.as_str(), format!(".{}", path).as_str())
+            if let Some(collection) = &cmd.collection {
+                if collection == COLLECTION_LOCAL {
+                    if let Some(url) = common::extract_url(cmd.command.as_str()) {
+                        if let Some(path) = common::extract_path(url.as_str()) {
+                            command = command.replace(url.as_str(), format!(".{}", path).as_str())
+                        }
                     }
                 }
             }
 
-            command += &format!(
-                " -r {}json,{} --reporter-json-export {}/.{}.json --reporter-{}-export {}/{}.html",
-                cli,
-                reporter,
-                &report_path,
-                &cmd.name,
-                reporter,
-                &report_path,
-                &cmd.name,
-            );
+            let standalone = cmd.standalone.unwrap_or(false);
+            if !standalone {
+                command += &format!(
+                    " -r {}json,{} --reporter-json-export {}/.{}.json --reporter-{}-export {}/{}.html",
+                    cli,
+                    reporter,
+                    &report_path,
+                    &cmd.name,
+                    reporter,
+                    &report_path,
+                    &cmd.name,
+                );
+            }
         }
 
         // Check skipped test collection
