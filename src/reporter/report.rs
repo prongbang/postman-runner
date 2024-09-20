@@ -1,4 +1,5 @@
 use std::fs::File;
+use std::path::Path;
 use serde::{Deserialize, Serialize};
 use crate::{config, date, executor, filex};
 use crate::reporter::template::dashboard;
@@ -176,14 +177,20 @@ pub struct DashboardReport {
     pub collections: Vec<CollectionReport>,
 }
 
-pub fn load(report_path: &str, name: &str) -> Reporter {
+pub fn load(report_path: &str, name: &str) -> Result<Reporter, ()> {
     let filename = format!("{}/.{}.json", report_path, name);
-    let file = File::open(filename.as_str()).expect("Failed to open the file");
+    let path = Path::new(filename.as_str());
 
-    // Deserialize the JSON string into a Reporter struct
-    let reporter: Reporter = serde_json::from_reader(file).expect("Failed to deserialize JSON");
+    if path.exists() {
+        let file = File::open(filename.as_str()).expect("Failed to open the file");
 
-    reporter
+        // Deserialize the JSON string into a Reporter struct
+        let reporter: Reporter = serde_json::from_reader(file).expect("Failed to deserialize JSON");
+
+        return Ok(reporter);
+    }
+
+    Err(())
 }
 
 pub async fn gen(config: &config::conf::Config) {
@@ -204,9 +211,10 @@ pub async fn gen(config: &config::conf::Config) {
         }
 
         if cmd.command.contains(executor::execute::NEWMAN_CLI) {
-            let mut report = load(report_path.as_str(), cmd.name.as_str());
-            report.report_url = format!("{}.html", &cmd.name);
-            test_reporters.push(report);
+            if let Ok(mut report) = load(report_path.as_str(), cmd.name.as_str()) {
+                report.report_url = format!("{}.html", &cmd.name);
+                test_reporters.push(report);
+            }
         }
     }
 
