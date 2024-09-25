@@ -45,6 +45,7 @@ commands:
     command: newman run xxxx -e xxxx
   - name: collection-2
     skipped: true
+    insecure: true
     command: newman run xxxx -e xxxx
 ```
 
@@ -52,6 +53,7 @@ commands:
 ** The `collection: local` flag run the collection locally.
 ** The `skipped: true` flag indicates that the test collection is skipped.
 ** The `standalone: true` flag run the command only.
+** The `insecure: true` flag allows the command to run with an insecure, self-signed certificate in the certificate chain.
 
 ### Reporter options by collection
 

@@ -30,6 +30,7 @@ pub struct Commands {
     pub name: String,
     pub collection: Option<String>,
     pub standalone: Option<bool>,
+    pub insecure: Option<bool>,
     pub command: String,
     pub skipped: Option<bool>,
 }

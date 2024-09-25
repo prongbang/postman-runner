@@ -79,8 +79,12 @@ pub async fn run(config: &mut config::conf::Config) {
 
             let standalone = cmd.standalone.unwrap_or(false);
             if !standalone {
+                let mut insecure = "";
+                if cmd.insecure.unwrap_or(false) {
+                    insecure = "--insecure"
+                }
                 command += &format!(
-                    " -r {}json,{} --reporter-json-export {}/.{}.json --reporter-{}-export {}/{}.html",
+                    " -r {}json,{} --reporter-json-export {}/.{}.json --reporter-{}-export {}/{}.html {}",
                     cli,
                     reporter,
                     &report_path,
@@ -88,6 +92,7 @@ pub async fn run(config: &mut config::conf::Config) {
                     reporter,
                     &report_path,
                     &cmd.name,
+                    insecure,
                 );
             }
         }
